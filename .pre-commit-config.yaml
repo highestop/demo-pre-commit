@@ -1,0 +1,52 @@
+fail_fast: true
+repos:
+    - repo: https://github.com/pocc/pre-commit-hooks
+      rev: v1.3.4
+      hooks:
+          - id: clang-format
+            name: clang-format
+            args: [-i]
+            files: '^package-editor/.*\.(h|cpp)'
+          - id: cppcheck
+            name: cppcheck
+            args:
+                - -i package-editor/third-party/
+                - --check-config
+            files: '^package-editor/.+\.(h|cpp)$'
+          - id: cpplint
+            name: cpplint
+            files: '^package-editor/.+\.(h|cpp)$'
+    - repo: https://github.com/cheshirekow/cmake-format-precommit
+      rev: v0.6.10
+      hooks:
+          - id: cmake-format
+          - id: cmake-lint
+
+    - repo: local
+      hooks:
+          - id: check-cpp-name
+            name: check-cpp-name
+            entry: package-editor/scripts/check-cpp-name.sh
+            language: script
+            files: '^package-editor/.+\.(cpp|h|cc|hpp)$'
+          - id: clang-format-proto
+            name: clang-format-proto
+            entry: clang-format
+            language: python
+            args: [-i]
+            files: '^package-(editor|client|server)/.*\.proto'
+            exclude: 'bridge\.proto'
+          - id: eslint
+            name: eslint
+            language: system
+            files: '^package-client/.*\.(tsx|ts|js)'
+            entry: npx eslint
+            pass_filenames: false
+          - id: prettier-check
+            name: prettier-check
+            language: node
+            additional_dependencies:
+                - prettier@2.5.1
+            # types_or: [html, css, scss, less, javascript, ts, tsx, json, yaml]
+            files: '^package-client/.*\.(html|css|scss|less|js|ts|tsx|json|yml|yaml)'
+            entry: prettier --config package-client/.prettierrc.json --ignore-path wukong-client/.prettierignore --write --check --ignore-unknown
